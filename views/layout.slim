@@ -1,0 +1,10 @@
+doctype html
+head
+  meta charset="utf-8"
+  title = yield_content :title
+  == stylesheet_include_tag 'app'
+body
+  == yield
+  script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"
+  script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.3/angular.min.js"
+  == javascript_include_tag 'app'
