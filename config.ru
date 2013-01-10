@@ -3,10 +3,10 @@ use Rack::Deflater
 
 if ENV['RACK_ENV'] != 'production'
   map '/assets' do
-    run NotesApp.assets
+    run BiddingApp.assets
   end
 end
 
 map '/' do
-  run NotesApp
+  run BiddingApp
 end

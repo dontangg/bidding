@@ -1,5 +1,5 @@
 
-class NotesApp < Sinatra::Base
+class BiddingApp < Sinatra::Base
   helpers do
     def asset_manifest
       unless @asset_manifest
