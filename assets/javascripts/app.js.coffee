@@ -1,4 +1,4 @@
 
-test = ->
-  true
+class Card
+  constructor: (@number, @suit) ->
 

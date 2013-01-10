@@ -13,7 +13,7 @@ class BiddingApp < Sinatra::Base
     def stylesheet_include_tag(source)
       source = "#{source}.css" if File.extname(source) == ''
 
-      asset_tag source, "<link src='{0}' rel='stylesheet' type='text/css' />"
+      asset_tag source, "<link href='{0}' rel='stylesheet' />"
     end
 
     def javascript_include_tag(source)
