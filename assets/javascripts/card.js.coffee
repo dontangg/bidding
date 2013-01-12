@@ -5,7 +5,7 @@ class Card
     @effectiveSuit = @suit;
 
   toString: ->
-    return 'BB' if @suit == Suit.blackbirdSuit
+    return "<span class='black'>BB</span>" if @suit == Suit.blackbirdSuit
 
     suitChar = switch @suit
       when Suit.blackSuit then 'B'
@@ -14,7 +14,9 @@ class Card
       when Suit.yellowSuit then 'Y'
       else '??'
 
-    "#{suitChar}#{@number}"
+    color = Suit.getName @suit
+
+    "<span class='#{color}'>#{suitChar}#{@number}</span>"
 
   @highBlackbirdCard: ->
     card = new Card 16, Suit.blackbirdSuit

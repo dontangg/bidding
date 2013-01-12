@@ -1,7 +1,21 @@
 
 @import 'bootstrap.min.css';
 
-.test {
-  color: #000;
+$black: rgb(0,0,0);
+$red: rgb(204,0,0);
+$green: rgb(15,113,0);
+$yellow: rgb(204,180,4);
+
+.black {
+  color: $black;
+}
+.red {
+  color: $red;
+}
+.green {
+  color: $green;
+}
+.yellow {
+  color: $yellow;
 }
 
