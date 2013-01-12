@@ -1,7 +1,7 @@
-#= require 'suit'
-#= require 'card'
-#= require 'deck'
-#= require 'computer_player'
+#= require suit
+#= require card
+#= require deck
+#= require computer_player
 
 nextHand = (options) ->
   hand = []
