@@ -4,6 +4,9 @@ require 'bundler'
 Bundler.require(:default, ENV['RACK_ENV'].to_sym)
 require 'sinatra/content_for'
 
+# Don't wrap CoffeeScript for this little project
+Tilt::CoffeeScriptTemplate.default_bare = true
+
 Sinatra::Base.configure do |c|
   c.set :root, File.dirname(__FILE__)
   c.helpers Sinatra::ContentFor
