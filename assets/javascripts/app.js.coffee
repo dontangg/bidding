@@ -25,6 +25,8 @@ $ ->
     include2To4: true
     isBlackbirdHigh: false
     useHighTrumpRed1: false
+    bonusForTakingMostTricks: 20
+    maximumBidAmount: 200
 
   player = new ComputerPlayer options
   player.hand = nextHand options
@@ -37,3 +39,6 @@ $ ->
   $('#trumpSuit')
     .addClass(trumpSuitName)
     .text(trumpSuitName)
+
+  $('#showBidBtn').click ->
+    $(this).replaceWith("<p>Bid: #{player.makeBid()}")
