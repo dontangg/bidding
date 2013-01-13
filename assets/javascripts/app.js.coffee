@@ -19,14 +19,36 @@ showHand = (hand) ->
   $('#hand').html cards.join(' ')
 
 
-$ ->
-  options =
-    include1s: true
-    include2To4: true
-    isBlackbirdHigh: false
-    useHighTrumpRed1: false
-    bonusForTakingMostTricks: 20
-    maximumBidAmount: 200
+setupScreen = ->
+  rules = $('#tabs li.active a').data('rules')
+  
+  switch rules
+    when 'official'
+      options =
+        include1s: false
+        include2To4: false
+        isBlackbirdHigh: true
+        useHighTrumpRed1: false
+        bonusForTakingMostTricks: 0
+        maximumBidAmount: 120
+    when 'wyoming'
+      options =
+        include1s: true
+        include2To4: true
+        isBlackbirdHigh: false
+        useHighTrumpRed1: false
+        bonusForTakingMostTricks: 20
+        maximumBidAmount: 200
+    when 'red1'
+      options =
+        include1s: false
+        include2To4: false
+        isBlackbirdHigh: true
+        useHighTrumpRed1: true
+        bonusForTakingMostTricks: 0
+        maximumBidAmount: 150
+
+
 
   player = new ComputerPlayer options
   player.hand = nextHand options
@@ -40,5 +62,26 @@ $ ->
     .addClass(trumpSuitName)
     .text(trumpSuitName)
 
-  $('#showBidBtn').click ->
-    $(this).replaceWith("<p>Bid: #{player.makeBid()}")
+  $('#showBidBtn').show().unbind('click').click ->
+    $(this).hide()
+    $('#original-bid').text("Bid: #{player.makeBid()}").show()
+
+  $('#original-bid').hide()
+
+$ ->
+  $('#tabs a').click (event) ->
+    $('#tabs li').removeClass 'active'
+    $(this).parent().addClass 'active'
+    setupScreen()
+
+  switch document.location.hash
+    when '#official'
+      $('#tabs li:first-child').addClass 'active'
+    when '#wyoming'
+      $('#tabs li:nth-child(2)').addClass 'active'
+    when '#red1'
+      $('#tabs li:nth-child(3)').addClass 'active'
+    else
+      $('#tabs li:first-child').addClass 'active'
+
+  setupScreen()
