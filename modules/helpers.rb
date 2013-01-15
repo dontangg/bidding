@@ -27,7 +27,7 @@ class BiddingApp < Sinatra::Base
         template.sub('{0}', "/assets/#{asset_manifest.assets[source]}")
       else
         settings.assets[source].to_a.map { |asset|
-          template.sub('{0}', "/assets/#{asset.logical_path}")
+          template.sub('{0}', "/assets/#{asset.logical_path}?body=1")
         }.join
       end
     end

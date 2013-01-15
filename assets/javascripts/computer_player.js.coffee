@@ -61,6 +61,8 @@ class ComputerPlayer
     trumpSuit
 
   makeBid: ->
+    factors = []
+
     trumpSuit = @chooseTrumpSync()
 
     nonTrumpHighestCardCount = 0 # 1s
@@ -109,13 +111,24 @@ class ComputerPlayer
       maxBidFactor += cardWorth
       totalTrumpPointsPossible += cardWorth
 
+    factor =
+      name: '# trump'
+      maxValue: 10
+      value: 0
+      description: "
+        10 pts >= #{Math.floor(trumpCards.length) / 2}, or
+        5 pts >= #{trumpCards.length / 3}, or
+        3 pts >= #{trumpCards.length / 4}.
+        This hand has #{ownedTrumpCardValues.length}."
     if ownedTrumpCardValues.length >= Math.floor(trumpCards.length / 2)
-      bidFactor += 10
+      factor.value = 10
     else if ownedTrumpCardValues.length >= trumpCards.length / 3
-      bidFactor += 5
+      factor.value = 5
     else if ownedTrumpCardValues.length >= trumpCards.length / 4
-      bidFactor += 3
-    maxBidFactor += 10
+      factor.value += 3
+    bidFactor += factor.value
+    maxBidFactor += factor.maxValue
+    factors.push factor
 
     bidFactor += nonTrumpHighestCardCount * 3.6
     maxBidFactor += 3 * 3.6
