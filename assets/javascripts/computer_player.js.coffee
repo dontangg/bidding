@@ -213,10 +213,11 @@ class ComputerPlayer
       if cardIsTrump
         ownedTrumpCards.push card
       else
-        if card.effectiveNumber > 11
-          nonTrumpHighCardCount++
+        if card.effectiveNumber > 12
           if card.number == @highestCardNumber
             nonTrumpHighestCardCount++
+          else
+            nonTrumpHighCardCount++
 
     bidFactor = 0
     maxBidFactor = 0
@@ -267,9 +268,9 @@ class ComputerPlayer
 
     factor =
       name: '# high non-trump'
-      maxValue: (2 + (if @include1s then 1 else 0)) * 3 * 0.6
+      maxValue: (1 + (if @include1s then 1 else 0)) * 3 * 0.6
       value: nonTrumpHighCardCount * 0.6
-      description: "0.6 pts for each non-trump card higher than 11. This hand has #{nonTrumpHighCardCount} high non-trump cards."
+      description: "0.6 pts for each non-trump card higher than 12, but less than the highest. This hand has #{nonTrumpHighCardCount} high non-trump cards."
     bidFactor += factor.value
     maxBidFactor += factor.maxValue
     factors.push factor
