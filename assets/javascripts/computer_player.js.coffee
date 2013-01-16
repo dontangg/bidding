@@ -197,11 +197,14 @@ class ComputerPlayer
 
     deck = new Deck @options
     trumpCards = []
+    redCards = [] # Maintain a list of cards of a random suit to help score other non-trump suits later
 
     drawnCard = deck.drawCard()
     while drawnCard
       if drawnCard.effectiveSuit == trumpSuit || drawnCard.effectiveSuit == Suit.effectiveTrumpSuit
         trumpCards.push drawnCard
+      if drawnCard.effectiveSuit == Suit.redSuit
+        redCards.push drawnCard
 
       drawnCard = deck.drawCard()
 
@@ -210,6 +213,8 @@ class ComputerPlayer
 
     # Put the highest trump card at the beginning (index 0), the lowest trump card at the end
     trumpCards.sort (card1, card2) ->
+      card2.effectiveNumber - card1.effectiveNumber
+    redCards.sort (card1, card2) ->
       card2.effectiveNumber - card1.effectiveNumber
 
     for card in @hand
@@ -233,6 +238,9 @@ class ComputerPlayer
         name: "Trump: #{trumpCards[i].toString()}"
         maxValue: @getCardWorthFromValueProposed cardValue
         value: 0
+
+      # The blackbird should always be worth at least 5
+      factor.maxValue = 5 if trumpCards[i].suit == Suit.blackbirdSuit && factor.maxValue < 5
 
       for card in ownedTrumpCards
         if trumpCards[i].toString() == card.toString()
@@ -276,13 +284,11 @@ class ComputerPlayer
     maxBidFactor += factor.maxValue
     factors.push factor
 
-    # Ideas
-    # * Reward for having less suits or being able to discard all cards in a suit
-    # * Penalty for having point cards in other suits
+    # Reward for not having any point cards that aren't the highest card of the suit in a suit that scores less than 16
     unless @lastTrickTakesWidow
       factor =
-        name: 'No unprotected points'
-        maxValue: 4 * 2
+        name: "Strong colors / can outsuit"
+        maxValue: 1.8 * 3
         value: 0
       suitCounts = {}
       suitCounts[Suit.blackSuit] = 0
@@ -292,19 +298,28 @@ class ComputerPlayer
       for card in @hand
         cardIsTrump = card.effectiveSuit == trumpSuit || card.effectiveSuit == Suit.effectiveTrumpSuit
         unless cardIsTrump
-          if card.number == @highestCardNumber || card.points() == 0
+          if card.number != @highestCardNumber && card.points() > 0
             suitCounts[card.suit]++
-          else
-            suitCounts[card.suit]--
 
-      total_unprotected_count = 0
+      strongSuitCount = 0
       for suit, count of suitCounts
-        total_unprotected_count -= count if count < 0
-      factor.value = 4 * (2 - Math.min(total_unprotected_count, 2))
+        if count > 0
+          suitScore = 0
+          for i in [0...redCards.length]
+            for card in @hand
+              if redCards[i].effectiveNumber == card.effectiveNumber && card.effectiveSuit == suit
+                cardValue = maxCardValue - i
+                suitScore += @getCardWorthFromValueProposed cardValue
+          strongSuitCount++ if suitScore >= 16
+        else
+          strongSuitCount++
 
-      #bidFactor += factor.value
-      #maxBidFactor += factor.maxValue
-      #factors.push factor
+      factor.description = "1.8 pts for each suit that is either strong or can be outsuited in. This hand has #{strongSuitCount} strong suits."
+      factor.value = 1.8 * strongSuitCount
+
+      bidFactor += factor.value
+      maxBidFactor += factor.maxValue
+      factors.push factor
 
     numCardsInHandFactor = 0.11 * ((if @include1s then 0 else 1) + (if @include2To4 then 0 else 1)) / 4
 
