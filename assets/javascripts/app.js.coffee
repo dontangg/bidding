@@ -1,3 +1,4 @@
+#= require jquery.mustache
 #= require suit
 #= require card
 #= require deck
@@ -65,16 +66,19 @@ setupScreen = ->
   $('#showBidBtn').show().unbind('click').click ->
     $(this).hide()
     bidInfo = player.makeBid()
-    console.log bidInfo
-    $('#original-bid').text("Bid: #{bidInfo.bidAmount}").show()
-
-  $('#original-bid').hide()
+    for factor in bidInfo.factors
+      factor.class = 'greyed-out' if factor.value == 0
+      factor.value = factor.value.toFixed 2
+      factor.maxValue = factor.maxValue.toFixed 2
+    factorsHtml = $('#factor-tmpl').mustache bidInfo
+    $('#bid-info').html factorsHtml
 
 $ ->
   $('#tabs a').click (event) ->
     $('#tabs li').removeClass 'active'
     $(this).parent().addClass 'active'
     setupScreen()
+    $('#bid-info').html ''
 
   switch document.location.hash
     when '#official'

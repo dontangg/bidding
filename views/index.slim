@@ -20,5 +20,30 @@ p
   span#trumpSuit
 
 a href="javascript:void(0)" id="showBidBtn" class="btn btn-primary" Show Bid
-p#original-bid style="display:none"
+
+p#bid-info
+
+script id="factor-tmpl" type="text/template"
+  hr
+
+  h2 Bid: {{bidAmount}} ({{bidPercent}}%)
+  p Min Bid: {{minBid}}
+  p Max Bid: {{maxBid}}
+
+  h3 Factors
+
+  table class="table table-striped"
+    thead
+      tr
+        th Name
+        th Value
+        th Possible
+
+    tbody
+      | {{#factors}}
+      tr
+        td {{&name}}
+        td class="right {{class}}" title="{{description}}" {{value}}
+        td class="right" {{maxValue}}
+      | {{/factors}}
 

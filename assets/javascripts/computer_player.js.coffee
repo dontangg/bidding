@@ -112,6 +112,7 @@ class ComputerPlayer
 
       bidFactor += factor.value
       maxBidFactor += factor.maxValue
+      factors.push factor
 
     factor =
       name: '# trump'
@@ -157,13 +158,17 @@ class ComputerPlayer
     minBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.453 + numCardsInHandFactor * 1.5)
     maxBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.82 + numCardsInHandFactor)
 
-    console.log "minBid: #{minBid}"
-    console.log "maxBid: #{maxBid}"
-
     bidAmount = bidFactor / maxBidFactor * (maxBid - minBid) + minBid
     bidAmount += @bonusForTakingMostTricks
 
+    factor =
+      name: 'Total'
+      maxValue: maxBidFactor
+      value: bidFactor
+    factors.push factor
+
     bidAmount: Math.floor((bidAmount + 2.5) / 5) * 5
+    bidPercent: (bidFactor * 100 / maxBidFactor).toFixed(2)
     minBid: minBid
     maxBid: maxBid
     factors: factors
