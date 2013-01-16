@@ -79,37 +79,39 @@ class ComputerPlayer
       drawnCard = deck.drawCard()
 
     ownedTrumpCardValues = []
-    maxCardValue = 15
+    ownedTrumpCards = []
 
+    # Put the highest trump card at the beginning (index 0), the lowest trump card at the end
     trumpCards.sort (card1, card2) ->
-      card2.EffectiveNumber - card1.EffectiveNumber
+      card2.effectiveNumber - card1.effectiveNumber
 
     for card in @hand
       cardIsTrump = card.effectiveSuit == trumpSuit || card.effectiveSuit == Suit.effectiveTrumpSuit
       if cardIsTrump
-        for i in [0...trumpCards.length]
-          if trumpCards[i].toString() == card.toString()
-            ownedTrumpCardValues.push (maxCardValue - i)
-            break
+        ownedTrumpCards.push card
       else
-        if card.effectiveNumber < 11
+        if card.effectiveNumber > 11
           nonTrumpHighCardCount++
           if card.number == @highestCardNumber
             nonTrumpHighestCardCount++
-    
 
     bidFactor = 0
     maxBidFactor = 0
 
-    for cardValue in ownedTrumpCardValues
-      cardWorth = @getCardWorthFromValue cardValue
-      bidFactor += cardWorth
+    maxCardValue = 15
+    for i in [0...trumpCards.length]
+      cardValue = maxCardValue - i
+      factor =
+        name: "Trump: #{trumpCards[i].toString()}"
+        maxValue: @getCardWorthFromValue cardValue
+        value: 0
 
-    totalTrumpPointsPossible = 0
-    for i in [(maxCardValue - trumpCards.length + 1)..maxCardValue]
-      cardWorth = @getCardWorthFromValue cardValue
-      maxBidFactor += cardWorth
-      totalTrumpPointsPossible += cardWorth
+      for card in ownedTrumpCards
+        if trumpCards[i].toString() == card.toString()
+          factor.value = factor.maxValue
+
+      bidFactor += factor.value
+      maxBidFactor += factor.maxValue
 
     factor =
       name: '# trump'
@@ -119,22 +121,34 @@ class ComputerPlayer
         10 pts >= #{Math.floor(trumpCards.length) / 2}, or
         5 pts >= #{trumpCards.length / 3}, or
         3 pts >= #{trumpCards.length / 4}.
-        This hand has #{ownedTrumpCardValues.length}."
-    if ownedTrumpCardValues.length >= Math.floor(trumpCards.length / 2)
+        This hand has #{ownedTrumpCards.length}."
+    if ownedTrumpCards.length >= Math.floor(trumpCards.length / 2)
       factor.value = 10
-    else if ownedTrumpCardValues.length >= trumpCards.length / 3
+    else if ownedTrumpCards.length >= trumpCards.length / 3
       factor.value = 5
-    else if ownedTrumpCardValues.length >= trumpCards.length / 4
+    else if ownedTrumpCards.length >= trumpCards.length / 4
       factor.value += 3
     bidFactor += factor.value
     maxBidFactor += factor.maxValue
     factors.push factor
 
-    bidFactor += nonTrumpHighestCardCount * 3.6
-    maxBidFactor += 3 * 3.6
+    factor =
+      name: '# highest non-trump'
+      maxValue: 3 * 3.6
+      value: nonTrumpHighestCardCount * 3.6
+      description: "3.6 pts for each highest non-trump card. This hand has #{nonTrumpHighestCardCount}."
+    bidFactor += factor.value
+    maxBidFactor += factor.maxValue
+    factors.push factor
 
-    bidFactor += nonTrumpHighCardCount * 0.6
-    maxBidFactor += (2 + (if @include1s then 1 else 0)) * 3 * 0.6
+    factor =
+      name: '# high non-trump'
+      maxValue: (2 + (if @include1s then 1 else 0)) * 3 * 0.6
+      value: nonTrumpHighCardCount * 0.6
+      description: "0.6 pts for each non-trump card higher than 11. This hand has #{nonTrumpHighCardCount}."
+    bidFactor += factor.value
+    maxBidFactor += factor.maxValue
+    factors.push factor
 
     numCardsInHandFactor = 0.1 * ((if @include1s then 0 else 1) + (if @include2To4 then 0 else 1)) / 4
 
@@ -149,7 +163,10 @@ class ComputerPlayer
     bidAmount = bidFactor / maxBidFactor * (maxBid - minBid) + minBid
     bidAmount += @bonusForTakingMostTricks
 
-    Math.floor((bidAmount + 2.5) / 5) * 5
+    bidAmount: Math.floor((bidAmount + 2.5) / 5) * 5
+    minBid: minBid
+    maxBid: maxBid
+    factors: factors
 
   getCardWorthFromValue: (cardValue) ->
     cardValue = Math.max cardValue, 1

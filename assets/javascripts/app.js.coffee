@@ -64,7 +64,9 @@ setupScreen = ->
 
   $('#showBidBtn').show().unbind('click').click ->
     $(this).hide()
-    $('#original-bid').text("Bid: #{player.makeBid()}").show()
+    bidInfo = player.makeBid()
+    console.log bidInfo
+    $('#original-bid').text("Bid: #{bidInfo.bidAmount}").show()
 
   $('#original-bid').hide()
 
