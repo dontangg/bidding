@@ -283,7 +283,7 @@ class ComputerPlayer
     unless @lastTrickTakesWidow
       factor =
         name: 'No unprotected points'
-        maxValue: 5
+        maxValue: 4 * 2
         value: 0
       suitCounts = {}
       suitCounts[Suit.blackSuit] = 0
@@ -299,23 +299,23 @@ class ComputerPlayer
             console.log "#{card.toString()} points: #{card.points()}"
             suitCounts[card.suit]--
 
-      has_any_unprotected = false
+      total_unprotected_count = 0
       for suit, count of suitCounts
-        has_any_unprotected = true if count < 0
-      unless has_any_unprotected
-        factor.value = factor.maxValue
-      console.log suitCounts
+        total_unprotected_count -= count if count < 0
+      factor.value = 4 * (2 - Math.min(total_unprotected_count, 2))
 
-      bidFactor += factor.value
-      maxBidFactor += factor.maxValue
-      factors.push factor
+      #bidFactor += factor.value
+      #maxBidFactor += factor.maxValue
+      #factors.push factor
 
     numCardsInHandFactor = 0.11 * ((if @include1s then 0 else 1) + (if @include2To4 then 0 else 1)) / 4
 
     console.log "numCardsInHandFactor: #{numCardsInHandFactor}"
 
-    minBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.44 + numCardsInHandFactor * 1.6)
-    maxBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.82 + numCardsInHandFactor)
+    minBidFactor = (0.44 + numCardsInHandFactor * 1.6)
+    #minBidFactor -= 0.02 if @lastTrickTakesWidow
+    minBid = (@maximumBidAmount - @bonusForTakingMostTricks) * minBidFactor
+    maxBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.83 + numCardsInHandFactor)
 
     bidAmount = bidFactor / maxBidFactor * (maxBid - minBid) + minBid
     bidAmount += @bonusForTakingMostTricks

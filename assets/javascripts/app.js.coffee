@@ -52,6 +52,14 @@ setupScreen = ->
         bonusForTakingMostTricks: 0
         maximumBidAmount: 150
         lastTrickTakesWidow: true
+    when 'tennessee'
+      options =
+        include1s: true
+        include2To4: false
+        isBlackbirdHigh: true
+        bonusForTakingMostTricks: 0
+        maximumBidAmount: 180
+        lastTrickTakesWidow: true
 
 
   player = new ComputerPlayer options
@@ -99,14 +107,8 @@ $ ->
     $('#bid-info').html ''
     $('#bid-info-proposed').html ''
 
-  switch document.location.hash
-    when '#official'
-      $('#tabs li:first-child').addClass 'active'
-    when '#wyoming'
-      $('#tabs li:nth-child(2)').addClass 'active'
-    when '#red1'
-      $('#tabs li:nth-child(3)').addClass 'active'
-    else
-      $('#tabs li:first-child').addClass 'active'
+  tab = $("a[href=#{document.location.hash}]").parent()
+  tab = $('#tabs li:first-child') if tab.length == 0
+  tab.addClass 'active'
 
   setupScreen()
