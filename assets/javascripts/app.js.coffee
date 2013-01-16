@@ -33,6 +33,7 @@ setupScreen = ->
         useHighTrumpRed1: false
         bonusForTakingMostTricks: 0
         maximumBidAmount: 120
+        lastTrickTakesWidow: true
     when 'wyoming'
       options =
         include1s: true
@@ -41,6 +42,7 @@ setupScreen = ->
         useHighTrumpRed1: false
         bonusForTakingMostTricks: 20
         maximumBidAmount: 200
+        lastTrickTakesWidow: false
     when 'red1'
       options =
         include1s: false
@@ -49,6 +51,7 @@ setupScreen = ->
         useHighTrumpRed1: true
         bonusForTakingMostTricks: 0
         maximumBidAmount: 150
+        lastTrickTakesWidow: true
 
 
   player = new ComputerPlayer options

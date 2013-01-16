@@ -8,6 +8,7 @@ class ComputerPlayer
     @useHighTrumpRed1 = options.useHighTrumpRed1
     @bonusForTakingMostTricks = options.bonusForTakingMostTricks
     @maximumBidAmount = options.maximumBidAmount
+    @lastTrickTakesWidow = options.lastTrickTakesWidow
     @highestCardNumber = if @include1s then 1 else 14
 
   calculateChooseTrumpScore: (cardToScore) ->
@@ -168,9 +169,10 @@ class ComputerPlayer
     factors.push factor
 
     bidAmount: Math.floor((bidAmount + 2.5) / 5) * 5
-    bidPercent: (bidFactor * 100 / maxBidFactor).toFixed(2)
-    minBid: minBid + @bonusForTakingMostTricks
-    maxBid: maxBid + @bonusForTakingMostTricks
+    bidAmountUnrounded: bidAmount.toFixed 2
+    bidPercent: (bidFactor * 100 / maxBidFactor).toFixed 2
+    minBid: (minBid + @bonusForTakingMostTricks).toFixed 2
+    maxBid: (maxBid + @bonusForTakingMostTricks).toFixed 2
     factors: factors
 
   getCardWorthFromValue: (cardValue) ->
@@ -275,11 +277,44 @@ class ComputerPlayer
     maxBidFactor += factor.maxValue
     factors.push factor
 
-    numCardsInHandFactor = 0.1 * ((if @include1s then 0 else 1) + (if @include2To4 then 0 else 1)) / 4
+    # Ideas
+    # * Reward for having less suits or being able to discard all cards in a suit
+    # * Penalty for having point cards in other suits
+    unless @lastTrickTakesWidow
+      factor =
+        name: 'No unprotected points'
+        maxValue: 5
+        value: 0
+      suitCounts = {}
+      suitCounts[Suit.blackSuit] = 0
+      suitCounts[Suit.greenSuit] = 0
+      suitCounts[Suit.redSuit] = 0
+      suitCounts[Suit.yellowSuit] = 0
+      for card in @hand
+        cardIsTrump = card.effectiveSuit == trumpSuit || card.effectiveSuit == Suit.effectiveTrumpSuit
+        unless cardIsTrump
+          if card.number == @highestCardNumber || card.points() == 0
+            suitCounts[card.suit]++
+          else
+            console.log "#{card.toString()} points: #{card.points()}"
+            suitCounts[card.suit]--
+
+      has_any_unprotected = false
+      for suit, count of suitCounts
+        has_any_unprotected = true if count < 0
+      unless has_any_unprotected
+        factor.value = factor.maxValue
+      console.log suitCounts
+
+      bidFactor += factor.value
+      maxBidFactor += factor.maxValue
+      factors.push factor
+
+    numCardsInHandFactor = 0.11 * ((if @include1s then 0 else 1) + (if @include2To4 then 0 else 1)) / 4
 
     console.log "numCardsInHandFactor: #{numCardsInHandFactor}"
 
-    minBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.453 + numCardsInHandFactor * 1.5)
+    minBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.44 + numCardsInHandFactor * 1.6)
     maxBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.82 + numCardsInHandFactor)
 
     bidAmount = bidFactor / maxBidFactor * (maxBid - minBid) + minBid
@@ -291,10 +326,11 @@ class ComputerPlayer
       value: bidFactor
     factors.push factor
 
-    bidAmount: Math.floor((bidAmount + 2.5) / 5) * 5
-    bidPercent: (bidFactor * 100 / maxBidFactor).toFixed(2)
-    minBid: minBid + @bonusForTakingMostTricks
-    maxBid: maxBid + @bonusForTakingMostTricks
+    bidAmount: Math.floor((bidAmount + 2.0) / 5) * 5
+    bidAmountUnrounded: bidAmount.toFixed 2
+    bidPercent: (bidFactor * 100 / maxBidFactor).toFixed 2
+    minBid: (minBid + @bonusForTakingMostTricks).toFixed 2
+    maxBid: (maxBid + @bonusForTakingMostTricks).toFixed 2
     factors: factors
 
   getCardWorthFromValueProposed: (cardValue) ->
@@ -304,4 +340,4 @@ class ComputerPlayer
     # (1/30)x^2 * (log(x)^2) + 0.75
     # (1/6000)x^4 * log(x) + 0.75
     #(1 / 30) * Math.pow(cardValue, 2) * Math.pow(Math.log(cardValue) / Math.log(10), 2) + 0.75
-    (1 / 5500) * Math.pow(cardValue, 4) * Math.log(cardValue) / Math.log(10) + 0.75
+    (1 / 4800) * Math.pow(cardValue, 4) * Math.log(cardValue) / Math.log(10) + 0.75

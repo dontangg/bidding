@@ -18,6 +18,15 @@ class Card
 
     "<span class='#{color}'>#{suitChar}#{@number}</span>"
 
+  points: ->
+    return 20 if @suit == Suit.blackbirdSuit
+    switch @number
+      when 1 then 15
+      when 14 then 10
+      when 10 then 10
+      when 5 then 5
+      else 0
+
   @highBlackbirdCard: ->
     card = new Card 16, Suit.blackbirdSuit
     card.effectiveSuit = Suit.effectiveTrumpSuit
