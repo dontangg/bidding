@@ -120,9 +120,9 @@ class ComputerPlayer
       value: 0
       description: "
         10 pts >= #{Math.floor(trumpCards.length) / 2}, or
-        5 pts >= #{trumpCards.length / 3}, or
-        3 pts >= #{trumpCards.length / 4}.
-        This hand has #{ownedTrumpCards.length}."
+        5 pts >= #{(trumpCards.length / 3).toFixed(1)}, or
+        3 pts >= #{(trumpCards.length / 4).toFixed(1)}.
+        This hand has #{ownedTrumpCards.length} trump cards."
     if ownedTrumpCards.length >= Math.floor(trumpCards.length / 2)
       factor.value = 10
     else if ownedTrumpCards.length >= trumpCards.length / 3
@@ -137,7 +137,7 @@ class ComputerPlayer
       name: '# highest non-trump'
       maxValue: 3 * 3.6
       value: nonTrumpHighestCardCount * 3.6
-      description: "3.6 pts for each highest non-trump card. This hand has #{nonTrumpHighestCardCount}."
+      description: "3.6 pts for each highest non-trump card. This hand has #{nonTrumpHighestCardCount} highest non-trump cards."
     bidFactor += factor.value
     maxBidFactor += factor.maxValue
     factors.push factor
@@ -146,7 +146,7 @@ class ComputerPlayer
       name: '# high non-trump'
       maxValue: (2 + (if @include1s then 1 else 0)) * 3 * 0.6
       value: nonTrumpHighCardCount * 0.6
-      description: "0.6 pts for each non-trump card higher than 11. This hand has #{nonTrumpHighCardCount}."
+      description: "0.6 pts for each non-trump card higher than 11. This hand has #{nonTrumpHighCardCount} high non-trump cards."
     bidFactor += factor.value
     maxBidFactor += factor.maxValue
     factors.push factor
@@ -169,8 +169,8 @@ class ComputerPlayer
 
     bidAmount: Math.floor((bidAmount + 2.5) / 5) * 5
     bidPercent: (bidFactor * 100 / maxBidFactor).toFixed(2)
-    minBid: minBid
-    maxBid: maxBid
+    minBid: minBid + @bonusForTakingMostTricks
+    maxBid: maxBid + @bonusForTakingMostTricks
     factors: factors
 
   getCardWorthFromValue: (cardValue) ->
@@ -181,3 +181,126 @@ class ComputerPlayer
     # (1/30)x^2 * (log(x)^2) + 0.75
     # (1/4000)x^4 + 0.75
     (1 / 30) * Math.pow(cardValue, 2) * Math.pow(Math.log(cardValue) / Math.log(10), 2) + 0.75
+
+
+  makeBidProposed: ->
+    factors = []
+
+    trumpSuit = @chooseTrumpSync()
+
+    nonTrumpHighestCardCount = 0 # 1s
+    nonTrumpHighCardCount = 0 # 12 or higher
+
+    deck = new Deck @options
+    trumpCards = []
+
+    drawnCard = deck.drawCard()
+    while drawnCard
+      if drawnCard.effectiveSuit == trumpSuit || drawnCard.effectiveSuit == Suit.effectiveTrumpSuit
+        trumpCards.push drawnCard
+
+      drawnCard = deck.drawCard()
+
+    ownedTrumpCardValues = []
+    ownedTrumpCards = []
+
+    # Put the highest trump card at the beginning (index 0), the lowest trump card at the end
+    trumpCards.sort (card1, card2) ->
+      card2.effectiveNumber - card1.effectiveNumber
+
+    for card in @hand
+      cardIsTrump = card.effectiveSuit == trumpSuit || card.effectiveSuit == Suit.effectiveTrumpSuit
+      if cardIsTrump
+        ownedTrumpCards.push card
+      else
+        if card.effectiveNumber > 11
+          nonTrumpHighCardCount++
+          if card.number == @highestCardNumber
+            nonTrumpHighestCardCount++
+
+    bidFactor = 0
+    maxBidFactor = 0
+
+    maxCardValue = 15
+    for i in [0...trumpCards.length]
+      cardValue = maxCardValue - i
+      factor =
+        name: "Trump: #{trumpCards[i].toString()}"
+        maxValue: @getCardWorthFromValueProposed cardValue
+        value: 0
+
+      for card in ownedTrumpCards
+        if trumpCards[i].toString() == card.toString()
+          factor.value = factor.maxValue
+
+      bidFactor += factor.value
+      maxBidFactor += factor.maxValue
+      factors.push factor
+
+    factor =
+      name: '# trump'
+      maxValue: 13
+      value: 0
+      description: "
+        13 pts >= #{Math.floor(trumpCards.length) / 2}, or
+        9 pts >= #{(trumpCards.length / 2.5).toFixed(1)}, or
+        5 pts >= #{(trumpCards.length / 3).toFixed(1)}.
+        This hand has #{ownedTrumpCards.length} trump cards."
+    if ownedTrumpCards.length >= Math.floor(trumpCards.length / 2)
+      factor.value = 13
+    else if ownedTrumpCards.length >= trumpCards.length / 2.5
+      factor.value = 9
+    else if ownedTrumpCards.length >= trumpCards.length / 3
+      factor.value += 5
+    bidFactor += factor.value
+    maxBidFactor += factor.maxValue
+    factors.push factor
+
+    factor =
+      name: '# highest non-trump'
+      maxValue: 3 * 5
+      value: nonTrumpHighestCardCount * 5
+      description: "5 pts for each highest non-trump card. This hand has #{nonTrumpHighestCardCount} highest non-trump cards."
+    bidFactor += factor.value
+    maxBidFactor += factor.maxValue
+    factors.push factor
+
+    factor =
+      name: '# high non-trump'
+      maxValue: (2 + (if @include1s then 1 else 0)) * 3 * 0.6
+      value: nonTrumpHighCardCount * 0.6
+      description: "0.6 pts for each non-trump card higher than 11. This hand has #{nonTrumpHighCardCount} high non-trump cards."
+    bidFactor += factor.value
+    maxBidFactor += factor.maxValue
+    factors.push factor
+
+    numCardsInHandFactor = 0.1 * ((if @include1s then 0 else 1) + (if @include2To4 then 0 else 1)) / 4
+
+    console.log "numCardsInHandFactor: #{numCardsInHandFactor}"
+
+    minBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.453 + numCardsInHandFactor * 1.5)
+    maxBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.82 + numCardsInHandFactor)
+
+    bidAmount = bidFactor / maxBidFactor * (maxBid - minBid) + minBid
+    bidAmount += @bonusForTakingMostTricks
+
+    factor =
+      name: 'Total'
+      maxValue: maxBidFactor
+      value: bidFactor
+    factors.push factor
+
+    bidAmount: Math.floor((bidAmount + 2.5) / 5) * 5
+    bidPercent: (bidFactor * 100 / maxBidFactor).toFixed(2)
+    minBid: minBid + @bonusForTakingMostTricks
+    maxBid: maxBid + @bonusForTakingMostTricks
+    factors: factors
+
+  getCardWorthFromValueProposed: (cardValue) ->
+    cardValue = Math.max cardValue, 1
+
+    # http://fooplot.com
+    # (1/30)x^2 * (log(x)^2) + 0.75
+    # (1/6000)x^4 * log(x) + 0.75
+    #(1 / 30) * Math.pow(cardValue, 2) * Math.pow(Math.log(cardValue) / Math.log(10), 2) + 0.75
+    (1 / 5500) * Math.pow(cardValue, 4) * Math.log(cardValue) / Math.log(10) + 0.75

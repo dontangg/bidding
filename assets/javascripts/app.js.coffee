@@ -1,3 +1,4 @@
+#= require bootstrap.min.js
 #= require jquery.mustache
 #= require suit
 #= require card
@@ -50,7 +51,6 @@ setupScreen = ->
         maximumBidAmount: 150
 
 
-
   player = new ComputerPlayer options
   player.hand = nextHand options
   Card.sortCards player.hand
@@ -60,18 +60,33 @@ setupScreen = ->
   trumpSuit = player.chooseTrumpSync()
   trumpSuitName = Suit.getName trumpSuit
   $('#trumpSuit')
+    .removeClass()
     .addClass(trumpSuitName)
     .text(trumpSuitName)
 
   $('#showBidBtn').show().unbind('click').click ->
     $(this).hide()
+
     bidInfo = player.makeBid()
+    bidInfo.title = "Bid"
     for factor in bidInfo.factors
       factor.class = 'greyed-out' if factor.value == 0
       factor.value = factor.value.toFixed 2
       factor.maxValue = factor.maxValue.toFixed 2
     factorsHtml = $('#factor-tmpl').mustache bidInfo
     $('#bid-info').html factorsHtml
+    $('#bid-info [rel=tooltip]').tooltip()
+
+    bidInfo = player.makeBidProposed()
+    bidInfo.title = "Proposed Bid"
+    for factor in bidInfo.factors
+      factor.class = 'greyed-out' if factor.value == 0
+      factor.value = factor.value.toFixed 2
+      factor.maxValue = factor.maxValue.toFixed 2
+    factorsHtml = $('#factor-tmpl').mustache bidInfo
+    $('#bid-info-proposed').html factorsHtml
+    $('#bid-info-proposed [rel=tooltip]').tooltip()
+
 
 $ ->
   $('#tabs a').click (event) ->
@@ -79,6 +94,7 @@ $ ->
     $(this).parent().addClass 'active'
     setupScreen()
     $('#bid-info').html ''
+    $('#bid-info-proposed').html ''
 
   switch document.location.hash
     when '#official'

@@ -19,14 +19,16 @@ p
   ' Trump: 
   span#trumpSuit
 
-a href="javascript:void(0)" id="showBidBtn" class="btn btn-primary" Show Bid
+p
+  a href="javascript:void(0)" id="showBidBtn" class="btn btn-primary" Show Bid
 
-p#bid-info
+p#bid-info.bid-info
+p#bid-info-proposed.bid-info
 
 script id="factor-tmpl" type="text/template"
   hr
 
-  h2 Bid: {{bidAmount}} ({{bidPercent}}%)
+  h2 {{title}}: {{bidAmount}} ({{bidPercent}}%)
   p Min Bid: {{minBid}}
   p Max Bid: {{maxBid}}
 
@@ -43,7 +45,8 @@ script id="factor-tmpl" type="text/template"
       | {{#factors}}
       tr
         td {{&name}}
-        td class="right {{class}}" title="{{description}}" {{value}}
+        td class="right {{class}}"
+          span rel="tooltip" title="{{description}}" {{value}}
         td class="right" {{maxValue}}
       | {{/factors}}
 
