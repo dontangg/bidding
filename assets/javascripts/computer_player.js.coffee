@@ -1,4 +1,8 @@
 
+Math.sinh ||= (x) -> (@exp(x) - @exp(-x)) / 2
+Math.cosh ||= (x) -> (@exp(x) + @exp(-x)) / 2
+Math.tanh ||= (x) -> @sinh(x) / @cosh(x)
+
 class ComputerPlayer
   constructor: (options) ->
     @options = options
@@ -154,8 +158,6 @@ class ComputerPlayer
 
     numCardsInHandFactor = 0.1 * ((if @include1s then 0 else 1) + (if @include2To4 then 0 else 1)) / 4
 
-    console.log "numCardsInHandFactor: #{numCardsInHandFactor}"
-
     minBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.453 + numCardsInHandFactor * 1.5)
     maxBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.82 + numCardsInHandFactor)
 
@@ -240,24 +242,21 @@ class ComputerPlayer
       maxBidFactor += factor.maxValue
       factors.push factor
 
+    # http://fooplot.com
+    # tanh(x/1.2-5) * 9 + 9
+    c = @hand.length * 4.8 / 13
+    calcTrumpCountWorth = (count) ->
+      Math.tanh(count / 1.2 - c) * 9 + 9
+
     factor =
       name: '# trump'
-      maxValue: 13
-      value: 0
-      description: "
-        13 pts >= #{Math.floor(trumpCards.length) / 2}, or
-        9 pts >= #{(trumpCards.length / 2.5).toFixed(1)}, or
-        5 pts >= #{(trumpCards.length / 3).toFixed(1)}.
-        This hand has #{ownedTrumpCards.length} trump cards."
-    if ownedTrumpCards.length >= Math.floor(trumpCards.length / 2)
-      factor.value = 13
-    else if ownedTrumpCards.length >= trumpCards.length / 2.5
-      factor.value = 9
-    else if ownedTrumpCards.length >= trumpCards.length / 3
-      factor.value += 5
+      maxValue: calcTrumpCountWorth(@hand.length)
+      value: calcTrumpCountWorth(ownedTrumpCards.length)
+      description: "This hand has #{ownedTrumpCards.length} trump cards."
     bidFactor += factor.value
     maxBidFactor += factor.maxValue
     factors.push factor
+    console.log factor
 
     factor =
       name: '# highest non-trump'
@@ -296,7 +295,6 @@ class ComputerPlayer
           if card.number == @highestCardNumber || card.points() == 0
             suitCounts[card.suit]++
           else
-            console.log "#{card.toString()} points: #{card.points()}"
             suitCounts[card.suit]--
 
       total_unprotected_count = 0
@@ -309,8 +307,6 @@ class ComputerPlayer
       #factors.push factor
 
     numCardsInHandFactor = 0.11 * ((if @include1s then 0 else 1) + (if @include2To4 then 0 else 1)) / 4
-
-    console.log "numCardsInHandFactor: #{numCardsInHandFactor}"
 
     minBidFactor = (0.44 + numCardsInHandFactor * 1.6)
     #minBidFactor -= 0.02 if @lastTrickTakesWidow
