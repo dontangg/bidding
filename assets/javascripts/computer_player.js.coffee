@@ -301,10 +301,9 @@ class ComputerPlayer
           if card.number != @highestCardNumber && card.points() > 0
             suitCounts[card.effectiveSuit]++
 
-      console.log "Potential bad suits:", suitCounts
-
       strongSuitCount = 0
       for suit, count of suitCounts
+        suit = parseInt suit
         if count > 0
           suitScore = 0
           for i in [0...redCards.length]
@@ -314,10 +313,8 @@ class ComputerPlayer
                 suitScore += @getCardWorthFromValueProposed cardValue
           if suitScore >= 16
             strongSuitCount++
-            console.log "#{suit} is strong"
-        else
+        else if suit != trumpSuit
           strongSuitCount++
-          console.log "#{suit} is strong"
 
       factor.description = "1.8 pts for each suit that is either strong or can be outsuited in. This hand has #{strongSuitCount} strong suits."
       factor.value = 1.8 * strongSuitCount
