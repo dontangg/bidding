@@ -192,6 +192,7 @@ class ComputerPlayer
 
     trumpSuit = @chooseTrumpSync()
 
+    trumpHighCardCount = 0 # 11 or higher
     nonTrumpHighestCardCount = 0 # 1s
     nonTrumpHighCardCount = 0 # 12 or higher
 
@@ -221,6 +222,8 @@ class ComputerPlayer
       cardIsTrump = card.effectiveSuit == trumpSuit || card.effectiveSuit == Suit.effectiveTrumpSuit
       if cardIsTrump
         ownedTrumpCards.push card
+        if card.effectiveNumber > 10
+          trumpHighCardCount++
       else
         if card.effectiveNumber > 12
           if card.number == @highestCardNumber
@@ -256,10 +259,12 @@ class ComputerPlayer
     calcTrumpCountWorth = (count) ->
       Math.tanh(count / 1.2 - c) * 9 + 9
 
+    trumpCount = ownedTrumpCards.length
+    trumpCount = Math.min(Math.round(c), trumpCount) if trumpHighCardCount < 2
     factor =
       name: '# trump'
       maxValue: calcTrumpCountWorth(@hand.length)
-      value: calcTrumpCountWorth(ownedTrumpCards.length)
+      value: calcTrumpCountWorth(trumpCount)
       description: "This hand has #{ownedTrumpCards.length} trump cards."
     bidFactor += factor.value
     maxBidFactor += factor.maxValue
