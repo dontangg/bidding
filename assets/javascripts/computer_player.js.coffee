@@ -267,7 +267,7 @@ class ComputerPlayer
       name: '# trump'
       maxValue: calcTrumpCountWorth(@hand.length)
       value: calcTrumpCountWorth(trumpCount) * trumpScoreFactor
-      description: "This hand has #{ownedTrumpCards.length} trump cards. It is getting #{(trumpScoreFactor * 100).toFixed(0)}% because of the highness of trump."
+      description: "This hand has #{ownedTrumpCards.length} trump cards. It is getting #{(trumpScoreFactor * 100).toFixed(0)}% because of the highness of trump. It would have been #{calcTrumpCountWorth(trumpCount).toFixed(2)}"
     bidFactor += factor.value
     maxBidFactor += factor.maxValue
     factors.push factor
