@@ -291,7 +291,7 @@ class ComputerPlayer
     maxBidFactor += factor.maxValue
     factors.push factor
 
-    # Reward for not having any point cards that aren't the highest card of the suit in a suit that scores less than 16
+    # Reward for either being able to outsuit (no point cards) or having strong suits
     unless @lastTrickTakesWidow
       factor =
         name: "Strong colors / can outsuit"
@@ -326,10 +326,10 @@ class ComputerPlayer
       factor.value = 1.8 * strongSuitCount
 
       # This benefit is not worth as much with fewer trumps
-      percentTrumpInHand = ownedTrumpCards.length / @hand.length
-      percentTrumpFactor = Math.min(1, percentTrumpInHand * 2.5)
+      percentTrumpInHand = (ownedTrumpCards.length - (3/13 * @hand.length)) / @hand.length
+      percentTrumpFactor = Math.min(1, percentTrumpInHand * 5)
       factor.value *= percentTrumpFactor
-      factor.description = "1.8 pts for each suit that is either strong or can be outsuited in. This hand has #{strongSuitCount} strong suits. It gets #{(percentTrumpFactor * 100).toFixed(0)}% of its value because of the number of trump."
+      factor.description = "1.8 pts for each suit that is either strong or can be outsuited in. This hand has #{strongSuitCount} strong suits. It gets #{(percentTrumpFactor * 100).toFixed(0)}% of its value because there are #{ownedTrumpCards.length} trump cards."
 
       bidFactor += factor.value
       maxBidFactor += factor.maxValue
