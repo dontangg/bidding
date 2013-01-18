@@ -321,8 +321,13 @@ class ComputerPlayer
         else if suit != trumpSuit
           strongSuitCount++
 
-      factor.description = "1.8 pts for each suit that is either strong or can be outsuited in. This hand has #{strongSuitCount} strong suits."
       factor.value = 1.8 * strongSuitCount
+
+      # This benefit is not worth as much with fewer trumps
+      percentTrumpInHand = ownedTrumpCards.length / @hand.length
+      percentTrumpFactor = Math.min(1, percentTrumpInHand * 2.5)
+      factor.value *= percentTrumpFactor
+      factor.description = "1.8 pts for each suit that is either strong or can be outsuited in. This hand has #{strongSuitCount} strong suits. It gets #{(percentTrumpFactor * 100).toFixed(0)}% of its value because of the number of trump."
 
       bidFactor += factor.value
       maxBidFactor += factor.maxValue

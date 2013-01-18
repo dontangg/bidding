@@ -1,4 +1,4 @@
-#= require bootstrap.min.js
+#= require bootstrap.min
 #= require jquery.mustache
 #= require suit
 #= require card
