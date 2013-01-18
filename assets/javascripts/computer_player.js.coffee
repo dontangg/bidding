@@ -192,7 +192,7 @@ class ComputerPlayer
 
     trumpSuit = @chooseTrumpSync()
 
-    trumpHighCardCount = 0 # 11 or higher
+    trumpHighCardCount = 0 # 12 or higher
     nonTrumpHighestCardCount = 0 # 1s
     nonTrumpHighCardCount = 0 # 12 or higher
 
@@ -222,7 +222,7 @@ class ComputerPlayer
       cardIsTrump = card.effectiveSuit == trumpSuit || card.effectiveSuit == Suit.effectiveTrumpSuit
       if cardIsTrump
         ownedTrumpCards.push card
-        if card.effectiveNumber > 10
+        if card.effectiveNumber > 11
           trumpHighCardCount++
       else
         if card.effectiveNumber > 12
@@ -259,13 +259,15 @@ class ComputerPlayer
     calcTrumpCountWorth = (count) ->
       Math.tanh(count / 1.2 - c) * 9 + 9
 
+    trumpScoreFactor = Math.min 1, bidFactor / 23
+
     trumpCount = ownedTrumpCards.length
     trumpCount = Math.min(Math.round(c), trumpCount) if trumpHighCardCount < 2
     factor =
       name: '# trump'
       maxValue: calcTrumpCountWorth(@hand.length)
-      value: calcTrumpCountWorth(trumpCount)
-      description: "This hand has #{ownedTrumpCards.length} trump cards."
+      value: calcTrumpCountWorth(trumpCount) * trumpScoreFactor
+      description: "This hand has #{ownedTrumpCards.length} trump cards. It is getting #{(trumpScoreFactor * 100).toFixed(0)}% because of the highness of trump."
     bidFactor += factor.value
     maxBidFactor += factor.maxValue
     factors.push factor
@@ -338,7 +340,7 @@ class ComputerPlayer
     minBidFactor = (0.44 + numCardsInHandFactor * 1.6)
     #minBidFactor -= 0.02 if @lastTrickTakesWidow
     minBid = (@maximumBidAmount - @bonusForTakingMostTricks) * minBidFactor
-    maxBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.83 + numCardsInHandFactor)
+    maxBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.84 + numCardsInHandFactor)
 
     bidAmount = bidFactor / maxBidFactor * (maxBid - minBid) + minBid
     bidAmount += @bonusForTakingMostTricks
