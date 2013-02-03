@@ -340,7 +340,7 @@ class ComputerPlayer
     minBidFactor = (0.44 + numCardsInHandFactor * 1.6)
     #minBidFactor -= 0.02 if @lastTrickTakesWidow
     minBid = (@maximumBidAmount - @bonusForTakingMostTricks) * minBidFactor
-    maxBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.88 + numCardsInHandFactor) # 0.84 before
+    maxBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.84 + numCardsInHandFactor) # Dad asked me to try 0.88
 
     bidAmount = bidFactor / maxBidFactor * (maxBid - minBid) + minBid
     bidAmount += @bonusForTakingMostTricks
