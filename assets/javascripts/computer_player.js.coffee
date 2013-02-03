@@ -335,12 +335,10 @@ class ComputerPlayer
       maxBidFactor += factor.maxValue
       factors.push factor
 
-    numCardsInHandFactor = 0.11 * ((if @include1s then 0 else 1) + (if @include2To4 then 0 else 1)) / 4
+    numCardsInHandFactor = 0.09 * ((if @include1s then 0 else 1) + (if @include2To4 then 0 else 3)) / 4
 
-    minBidFactor = (0.44 + numCardsInHandFactor * 1.6)
-    #minBidFactor -= 0.02 if @lastTrickTakesWidow
-    minBid = (@maximumBidAmount - @bonusForTakingMostTricks) * minBidFactor
-    maxBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.84 + numCardsInHandFactor) # Dad asked me to try 0.88
+    minBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.44 + numCardsInHandFactor)
+    maxBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.84 + numCardsInHandFactor * 0.4)
 
     bidAmount = bidFactor / maxBidFactor * (maxBid - minBid) + minBid
     bidAmount += @bonusForTakingMostTricks
