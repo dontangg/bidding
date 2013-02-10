@@ -16,7 +16,9 @@ nextHand = (options) ->
   #cards = "G6 Y9 B6 B8 B9 B11 R6 R9 R14"
   #cards = "G7 G10 G12 Y6 Y11 B14 R8 R10 R11"
   #for cardStr in cards.split(' ')
-    #if cardStr == 'BB'
+    #if cardStr == 'BBH'
+      #hand.push Card.highBlackbirdCard()
+    #else if cardStr == 'BB'
       #hand.push Card.lowBlackbirdCard()
     #else
       #if cardStr[0] == 'B'

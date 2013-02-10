@@ -158,8 +158,10 @@ class ComputerPlayer
 
     numCardsInHandFactor = 0.1 * ((if @include1s then 0 else 1) + (if @include2To4 then 0 else 3)) / 4
 
-    minBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.453 + numCardsInHandFactor * 1.5)
-    maxBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.82 + numCardsInHandFactor)
+    maximumBidAmount = @maximumBidAmount
+    maximumBidAmount -= 15 if @useHighTrumpRed1
+    minBid = (maximumBidAmount - @bonusForTakingMostTricks) * (0.453 + numCardsInHandFactor * 1.5)
+    maxBid = (maximumBidAmount - @bonusForTakingMostTricks) * (0.82 + numCardsInHandFactor)
 
     bidAmount = bidFactor / maxBidFactor * (maxBid - minBid) + minBid
     bidAmount += @bonusForTakingMostTricks
@@ -335,10 +337,13 @@ class ComputerPlayer
       maxBidFactor += factor.maxValue
       factors.push factor
 
-    numCardsInHandFactor = 0.09 * ((if @include1s then 0 else 1) + (if @include2To4 then 0 else 3)) / 4
+    numCardsInHandFactor = 0.1 * ((if @include1s then 0 else 1) + (if @include2To4 then 0 else 3)) / 4
+    
+    maximumBidAmount = @maximumBidAmount
+    maximumBidAmount -= 10 if @useHighTrumpRed1
 
-    minBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.44 + numCardsInHandFactor)
-    maxBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.84 + numCardsInHandFactor * 0.4)
+    minBid = (maximumBidAmount - @bonusForTakingMostTricks) * (0.44 + numCardsInHandFactor * 1.55)
+    maxBid = (maximumBidAmount - @bonusForTakingMostTricks) * (0.84 + numCardsInHandFactor * 1.05)
 
     bidAmount = bidFactor / maxBidFactor * (maxBid - minBid) + minBid
     bidAmount += @bonusForTakingMostTricks
