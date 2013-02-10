@@ -125,14 +125,14 @@ class ComputerPlayer
       value: 0
       description: "
         10 pts >= #{Math.floor(trumpCards.length) / 2}, or
-        5 pts >= #{(trumpCards.length / 3).toFixed(1)}, or
-        3 pts >= #{(trumpCards.length / 4).toFixed(1)}.
+        5 pts >= #{Math.floor(trumpCards.length / 3).toFixed(1)}, or
+        3 pts >= #{Math.floor(trumpCards.length / 4).toFixed(1)}.
         This hand has #{ownedTrumpCards.length} trump cards."
     if ownedTrumpCards.length >= Math.floor(trumpCards.length / 2)
       factor.value = 10
-    else if ownedTrumpCards.length >= trumpCards.length / 3
+    else if ownedTrumpCards.length >= Math.floor(trumpCards.length / 3)
       factor.value = 5
-    else if ownedTrumpCards.length >= trumpCards.length / 4
+    else if ownedTrumpCards.length >= Math.floor(trumpCards.length / 4)
       factor.value += 3
     bidFactor += factor.value
     maxBidFactor += factor.maxValue
@@ -156,7 +156,7 @@ class ComputerPlayer
     maxBidFactor += factor.maxValue
     factors.push factor
 
-    numCardsInHandFactor = 0.1 * ((if @include1s then 0 else 1) + (if @include2To4 then 0 else 1)) / 4
+    numCardsInHandFactor = 0.1 * ((if @include1s then 0 else 1) + (if @include2To4 then 0 else 3)) / 4
 
     minBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.453 + numCardsInHandFactor * 1.5)
     maxBid = (@maximumBidAmount - @bonusForTakingMostTricks) * (0.82 + numCardsInHandFactor)

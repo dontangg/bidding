@@ -13,6 +13,25 @@ nextHand = (options) ->
   numCards += 1 if options.include1s
   numCards += 3 if options.include2To4
 
+  #cards = "G6 Y9 B6 B8 B9 B11 R6 R9 R14"
+  #cards = "G7 G10 G12 Y6 Y11 B14 R8 R10 R11"
+  #for cardStr in cards.split(' ')
+    #if cardStr == 'BB'
+      #hand.push Card.lowBlackbirdCard()
+    #else
+      #if cardStr[0] == 'B'
+        #suit = Suit.blackSuit
+      #else if cardStr[0] == 'G'
+        #suit = Suit.greenSuit
+      #else if cardStr[0] == 'R'
+        #suit = Suit.redSuit
+      #else if cardStr[0] == 'Y'
+        #suit = Suit.yellowSuit
+
+      #number = parseInt cardStr.substr(1)
+
+      #hand.push new Card(number, suit)
+
   hand.push(deck.drawCard()) for num in [1..numCards]
   hand
 
